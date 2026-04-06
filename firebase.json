@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "public": ".",
+    "rewrites": [
+      { "source": "/", "destination": "/tetris.html" }
+    ],
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "Dockerfile",
+      "nginx.conf",
+      "CLAUDE.md",
+      "README.md",
+      ".git/**"
+    ]
+  }
+}
