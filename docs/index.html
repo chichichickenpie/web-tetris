@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Tetris — システム仕様書</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', sans-serif;
+    line-height: 1.7;
+    padding: 40px 20px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 2rem;
+    letter-spacing: 0.3em;
+    color: #00f0f0;
+    text-shadow: 0 0 10px #00f0f088;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: #888;
+    margin-bottom: 48px;
+    font-size: 0.9rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    color: #00f0f0;
+    border-left: 3px solid #00f0f0;
+    padding-left: 12px;
+    margin: 48px 0 20px;
+  }
+
+  h3 {
+    font-size: 1rem;
+    color: #aaa;
+    margin: 28px 0 12px;
+  }
+
+  p {
+    color: #ccc;
+    margin-bottom: 12px;
+  }
+
+  a {
+    color: #00f0f0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9rem;
+  }
+
+  th {
+    background: #1a1a2e;
+    color: #00f0f0;
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid #2a2a4a;
+  }
+
+  td {
+    padding: 9px 14px;
+    border: 1px solid #2a2a4a;
+    color: #ccc;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td {
+    background: #11111f;
+  }
+
+  code {
+    background: #1a1a2e;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.88em;
+    color: #f0c080;
+  }
+
+  .diagram-box {
+    background: #11111f;
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 24px;
+    margin: 20px 0;
+    overflow-x: auto;
+  }
+
+  .mermaid {
+    display: flex;
+    justify-content: center;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+
+  .badge {
+    background: #1a1a2e;
+    border: 1px solid #2a2a4a;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    color: #aaa;
+  }
+
+  .badge span {
+    color: #00f0f0;
+    font-weight: bold;
+  }
+
+  footer {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid #2a2a4a;
+    color: #555;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>WEB TETRIS</h1>
+  <div class="subtitle">システム仕様書 — System Architecture Document</div>
+
+  <div class="badge-row">
+    <div class="badge">リポジトリ: <span>chississickenpie/web-tetris</span></div>
+    <div class="badge">プラットフォーム: <span>Firebase Hosting / Cloud Storage</span></div>
+    <div class="badge">依存関係: <span>なし（ゼロ依存）</span></div>
+  </div>
+
+  <!-- 1. システム概要 -->
+  <h2>1. システム概要</h2>
+  <p>
+    Tetris Guideline 準拠のブラウザ用テトリスゲーム。ビルドツール・パッケージマネージャ不要の単一 HTML ファイル (<code>tetris.html</code>) で構成される。
+    Google Cloud Platform 上の複数サービスにデプロイされ、静的コンテンツとして配信される。
+  </p>
+
+  <div class="diagram-box">
+    <div class="mermaid">
+graph TD
+    DEV["💻 開発環境\nChromebook Crostini"]
+    GH["GitHub\nchississickenpie/web-tetris"]
+    CS["Cloud Storage\ngs://tetris-practice-day1-yu\n静的ウェブサイトホスティング"]
+    FB["Firebase Hosting\npractice-day1-yu.web.app"]
+
+    DEV -->|git push| GH
+    GH -->|gsutil / gcloud| CS
+    GH -->|firebase deploy| FB
+
+    style DEV fill:#1a1a2e,stroke:#2a2a4a,color:#ccc
+    style GH fill:#1a1a2e,stroke:#00f0f0,color:#00f0f0
+    style CS fill:#1a1a2e,stroke:#2a2a4a,color:#ccc
+    style FB fill:#1a1a2e,stroke:#f5820d,color:#f5820d
+    </div>
+  </div>
+
+  <!-- 2. インフラ構成 -->
+  <h2>2. インフラ構成</h2>
+  <table>
+    <tr>
+      <th>サービス</th>
+      <th>用途</th>
+      <th>URL / リソース</th>
+      <th>リージョン</th>
+    </tr>
+    <tr>
+      <td>Firebase Hosting</td>
+      <td>プライマリ配信</td>
+      <td><a href="https://practice-day1-yu.web.app" target="_blank">practice-day1-yu.web.app</a></td>
+      <td>グローバル CDN</td>
+    </tr>
+    <tr>
+      <td>Cloud Storage</td>
+      <td>静的ホスティング</td>
+      <td><code>gs://tetris-practice-day1-yu</code></td>
+      <td>asia-east1</td>
+    </tr>
+    <tr>
+      <td>GitHub Pages</td>
+      <td>仕様書公開</td>
+      <td>chississickenpie.github.io/web-tetris</td>
+      <td>グローバル CDN</td>
+    </tr>
+  </table>
+
+  <!-- 3. アプリケーションアーキテクチャ -->
+  <h2>3. アプリケーションアーキテクチャ</h2>
+  <p>
+    全ロジックは <code>tetris.html</code> 内の <code>&lt;script&gt;</code> タグに収められ、6 つのクラスで構成される。
+  </p>
+
+  <div class="diagram-box">
+    <div class="mermaid">
+classDiagram
+    class Bag {
+        +queue: string[]
+        +next() string
+        -shuffle()
+    }
+
+    class Piece {
+        +type: string
+        +rot: number
+        +x: number
+        +y: number
+        +cells() number[][]
+    }
+
+    class Board {
+        +grid: number[][]
+        +collision(piece) boolean
+        +lock(piece)
+        +clearLines() number
+    }
+
+    class Game {
+        +state: START|PLAYING|PAUSED|GAME_OVER
+        +score: number
+        +level: number
+        +lines: number
+        +update(delta, softDrop)
+        -detectTSpin() boolean
+    }
+
+    class Renderer {
+        +drawBoard()
+        +drawHold()
+        +drawNext()
+    }
+
+    class Input {
+        +update(delta)
+        -handleDAS()
+        -handleARR()
+    }
+
+    Game --> Board
+    Game --> Bag
+    Game --> Piece
+    Renderer --> Board
+    Renderer --> Game
+    Input --> Game
+    </div>
+  </div>
+
+  <!-- 4. ゲームループ -->
+  <h2>4. ゲームループ</h2>
+
+  <div class="diagram-box">
+    <div class="mermaid">
+sequenceDiagram
+    participant RAF as requestAnimationFrame
+    participant Input
+    participant Game
+    participant Renderer
+
+    loop 毎フレーム (~60fps)
+        RAF->>Input: update(delta)
+        Note over Input: DAS/ARR 処理<br/>キー入力→ゲーム操作
+        Input->>Game: move / rotate / drop
+        RAF->>Game: update(delta, softDropping)
+        Note over Game: 落下タイマー更新<br/>ロック判定<br/>ライン消去・スコア計算
+        RAF->>Renderer: drawBoard()
+        RAF->>Renderer: drawHold()
+        RAF->>Renderer: drawNext()
+    end
+    </div>
+  </div>
+
+  <!-- 5. 主要定数 -->
+  <h2>5. 主要定数・パラメータ</h2>
+  <table>
+    <tr><th>定数</th><th>値</th><th>説明</th></tr>
+    <tr><td><code>DAS</code></td><td>133 ms</td><td>Delayed Auto Shift — キー長押し後の初動遅延</td></tr>
+    <tr><td><code>ARR</code></td><td>10 ms</td><td>Auto Repeat Rate — 長押し中の移動間隔</td></tr>
+    <tr><td><code>LOCK_DELAY</code></td><td>500 ms</td><td>接地後ロックまでの猶予時間</td></tr>
+    <tr><td><code>LOCK_RESET_MAX</code></td><td>15 回</td><td>ロックディレイリセット上限</td></tr>
+    <tr><td>落下速度</td><td><code>(0.8-(level-1)×0.007)^(level-1)</code> 秒/行</td><td>Tetris Guideline 準拠の速度式</td></tr>
+    <tr><td>ボード</td><td>10 × 22 (可視 20 行)</td><td>上 2 行はスポーン用の非表示領域</td></tr>
+  </table>
+
+  <!-- 6. Tetris Guideline 準拠機能 -->
+  <h2>6. Tetris Guideline 準拠機能</h2>
+  <table>
+    <tr><th>機能</th><th>実装方式</th></tr>
+    <tr><td>ランダマイザ</td><td>7-bag（全 7 ピースをシャッフルして順に取り出す）</td></tr>
+    <tr><td>回転システム</td><td>SRS（Super Rotation System）</td></tr>
+    <tr><td>壁蹴り</td><td>JLSTZ 用テーブル / I ピース専用テーブルを分離</td></tr>
+    <tr><td>T-Spin 判定</td><td>T バウンディングボックス 4 隅のうち 3 隅以上が埋まっていれば T-Spin</td></tr>
+    <tr><td>Back-to-Back</td><td>Tetris / T-Spin 連続時に 1.5× スコア倍率</td></tr>
+    <tr><td>ゴーストピース</td><td>落下先を半透明で表示</td></tr>
+    <tr><td>ホールド</td><td>1 ピースを保留、次のピースと交換可能</td></tr>
+    <tr><td>NEXT キュー</td><td>次の 5 ピースを表示</td></tr>
+  </table>
+
+  <!-- 7. スコアリング -->
+  <h2>7. スコアリング</h2>
+
+  <div class="diagram-box">
+    <div class="mermaid">
+flowchart TD
+    CLEAR["ライン消去"]
+    CHECK_BTB{"直前も\nTetris/T-Spin?"}
+    CHECK_TYPE{"消去種別"}
+    SINGLE["×100 × level"]
+    DOUBLE["×300 × level"]
+    TRIPLE["×500 × level"]
+    TETRIS["×800 × level"]
+    TSPIN["T-Spin 補正\n×1.5"]
+    BTB["Back-to-Back\n×1.5"]
+    SCORE["スコア加算"]
+
+    CLEAR --> CHECK_TYPE
+    CHECK_TYPE -->|1行| SINGLE --> SCORE
+    CHECK_TYPE -->|2行| DOUBLE --> SCORE
+    CHECK_TYPE -->|3行| TRIPLE --> SCORE
+    CHECK_TYPE -->|4行| TETRIS --> CHECK_BTB
+    CHECK_TYPE -->|T-Spin| TSPIN --> CHECK_BTB
+    CHECK_BTB -->|Yes| BTB --> SCORE
+    CHECK_BTB -->|No| SCORE
+
+    style SCORE fill:#1a2a1a,stroke:#00f080,color:#00f080
+    </div>
+  </div>
+
+  <!-- 8. デプロイフロー -->
+  <h2>8. デプロイフロー</h2>
+
+  <div class="diagram-box">
+    <div class="mermaid">
+flowchart LR
+    EDIT["tetris.html\n編集"]
+    COMMIT["git commit\n& push"]
+    GH["GitHub\nmaster ブランチ"]
+
+    subgraph GCP["Google Cloud Platform — practice-day1-yu"]
+        FB["Firebase Hosting\nfirebase deploy"]
+        CS["Cloud Storage\ngsutil cp"]
+    end
+
+    EDIT --> COMMIT --> GH
+    GH --> FB
+    GH --> CS
+    </div>
+  </div>
+
+  <h3>Firebase Hosting デプロイ手順</h3>
+  <table>
+    <tr><th>手順</th><th>コマンド</th></tr>
+    <tr><td>ログイン</td><td><code>firebase login</code></td></tr>
+    <tr><td>ローカル確認</td><td><code>firebase serve</code></td></tr>
+    <tr><td>デプロイ</td><td><code>firebase deploy --only hosting</code></td></tr>
+  </table>
+
+  <footer>
+    <p>Web Tetris — chississickenpie/web-tetris &nbsp;|&nbsp; GCP Project: practice-day1-yu</p>
+  </footer>
+
+</div>
+
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { darkMode: true, background: '#11111f', primaryColor: '#1a1a2e', primaryTextColor: '#e0e0e0', primaryBorderColor: '#2a2a4a', lineColor: '#00f0f0', secondaryColor: '#1a1a2e', tertiaryColor: '#11111f' } });
+</script>
+</body>
+</html>
