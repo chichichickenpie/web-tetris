@@ -144,8 +144,8 @@
   <div class="subtitle">システム仕様書 — System Architecture Document</div>
 
   <div class="badge-row">
-    <div class="badge">リポジトリ: <span>chississickenpie/web-tetris</span></div>
-    <div class="badge">プラットフォーム: <span>Firebase Hosting / Cloud Storage</span></div>
+    <div class="badge">リポジトリ: <span>chichichickenpie/web-tetris</span></div>
+    <div class="badge">プラットフォーム: <span>Firebase Hosting</span></div>
     <div class="badge">依存関係: <span>なし（ゼロ依存）</span></div>
   </div>
 
@@ -153,25 +153,25 @@
   <h2>1. システム概要</h2>
   <p>
     Tetris Guideline 準拠のブラウザ用テトリスゲーム。ビルドツール・パッケージマネージャ不要の単一 HTML ファイル (<code>tetris.html</code>) で構成される。
-    Google Cloud Platform 上の複数サービスにデプロイされ、静的コンテンツとして配信される。
+    Firebase Hosting により静的コンテンツとして配信される。
   </p>
 
   <div class="diagram-box">
     <div class="mermaid">
 graph TD
     DEV["💻 開発環境\nChromebook Crostini"]
-    GH["GitHub\nchississickenpie/web-tetris"]
-    CS["Cloud Storage\ngs://tetris-practice-day1-yu\n静的ウェブサイトホスティング"]
+    GH["GitHub\nchichichickenpie/web-tetris"]
     FB["Firebase Hosting\npractice-day1-yu.web.app"]
+    GP["GitHub Pages\nchichichickenpie.github.io/web-tetris\n仕様書"]
 
     DEV -->|git push| GH
-    GH -->|gsutil / gcloud| CS
     GH -->|firebase deploy| FB
+    GH -->|docs/ フォルダ| GP
 
     style DEV fill:#1a1a2e,stroke:#2a2a4a,color:#ccc
     style GH fill:#1a1a2e,stroke:#00f0f0,color:#00f0f0
-    style CS fill:#1a1a2e,stroke:#2a2a4a,color:#ccc
     style FB fill:#1a1a2e,stroke:#f5820d,color:#f5820d
+    style GP fill:#1a1a2e,stroke:#8b5cf6,color:#8b5cf6
     </div>
   </div>
 
@@ -186,20 +186,14 @@ graph TD
     </tr>
     <tr>
       <td>Firebase Hosting</td>
-      <td>プライマリ配信</td>
+      <td>ゲーム配信</td>
       <td><a href="https://practice-day1-yu.web.app" target="_blank">practice-day1-yu.web.app</a></td>
       <td>グローバル CDN</td>
     </tr>
     <tr>
-      <td>Cloud Storage</td>
-      <td>静的ホスティング</td>
-      <td><code>gs://tetris-practice-day1-yu</code></td>
-      <td>asia-east1</td>
-    </tr>
-    <tr>
       <td>GitHub Pages</td>
       <td>仕様書公開</td>
-      <td>chississickenpie.github.io/web-tetris</td>
+      <td><a href="https://chichichickenpie.github.io/web-tetris/" target="_blank">chichichickenpie.github.io/web-tetris</a></td>
       <td>グローバル CDN</td>
     </tr>
   </table>
@@ -356,12 +350,10 @@ flowchart LR
 
     subgraph GCP["Google Cloud Platform — practice-day1-yu"]
         FB["Firebase Hosting\nfirebase deploy"]
-        CS["Cloud Storage\ngsutil cp"]
     end
 
     EDIT --> COMMIT --> GH
     GH --> FB
-    GH --> CS
     </div>
   </div>
 
@@ -374,7 +366,7 @@ flowchart LR
   </table>
 
   <footer>
-    <p>Web Tetris — chississickenpie/web-tetris &nbsp;|&nbsp; GCP Project: practice-day1-yu</p>
+    <p>Web Tetris — chichichickenpie/web-tetris &nbsp;|&nbsp; GCP Project: practice-day1-yu</p>
   </footer>
 
 </div>
