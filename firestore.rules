@@ -3,8 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /scores/{docId} {
       allow read: if true;
-      allow create: if request.auth != null
-        && request.resource.data.score is int
+      allow create: if request.resource.data.score is int
         && request.resource.data.lines is int
         && request.resource.data.level is int
         && request.resource.data.score >= 0
