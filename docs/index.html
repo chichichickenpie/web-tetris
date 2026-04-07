@@ -146,14 +146,15 @@
   <div class="badge-row">
     <div class="badge">リポジトリ: <span>chichichickenpie/web-tetris</span></div>
     <div class="badge">プラットフォーム: <span>Firebase Hosting</span></div>
-    <div class="badge">依存関係: <span>なし（ゼロ依存）</span></div>
+    <div class="badge">データベース: <span>Cloud Firestore</span></div>
+    <div class="badge">依存関係: <span>Firebase SDK のみ</span></div>
   </div>
 
   <!-- 1. システム概要 -->
   <h2>1. システム概要</h2>
   <p>
-    Tetris Guideline 準拠のブラウザ用テトリスゲーム。ビルドツール・パッケージマネージャ不要の単一 HTML ファイル (<code>tetris.html</code>) で構成される。
-    Firebase Hosting により静的コンテンツとして配信される。
+    Tetris Guideline 準拠のブラウザ用テトリスゲーム。単一 HTML ファイル (<code>tetris.html</code>) で構成され、Firebase Hosting により配信される。
+    ゲームオーバー時にスコアを Cloud Firestore へ保存し、グローバルランキングをリアルタイム表示する。
   </p>
 
   <div class="diagram-box">
@@ -162,15 +163,19 @@ graph TD
     DEV["💻 開発環境\nChromebook Crostini"]
     GH["GitHub\nchichichickenpie/web-tetris"]
     FB["Firebase Hosting\npractice-day1-yu.web.app"]
+    FS["Cloud Firestore\nscores コレクション"]
     GP["GitHub Pages\nchichichickenpie.github.io/web-tetris\n仕様書"]
 
     DEV -->|git push| GH
     GH -->|firebase deploy| FB
     GH -->|docs/ フォルダ| GP
+    FB -->|スコア保存| FS
+    FS -->|ランキング取得| FB
 
     style DEV fill:#1a1a2e,stroke:#2a2a4a,color:#ccc
     style GH fill:#1a1a2e,stroke:#00f0f0,color:#00f0f0
     style FB fill:#1a1a2e,stroke:#f5820d,color:#f5820d
+    style FS fill:#1a1a2e,stroke:#f5820d,color:#f5820d
     style GP fill:#1a1a2e,stroke:#8b5cf6,color:#8b5cf6
     </div>
   </div>
@@ -191,12 +196,29 @@ graph TD
       <td>グローバル CDN</td>
     </tr>
     <tr>
+      <td>Cloud Firestore</td>
+      <td>スコア保存・ランキング</td>
+      <td><code>scores</code> コレクション</td>
+      <td>asia-east1</td>
+    </tr>
+    <tr>
       <td>GitHub Pages</td>
       <td>仕様書公開</td>
       <td><a href="https://chichichickenpie.github.io/web-tetris/" target="_blank">chichichickenpie.github.io/web-tetris</a></td>
       <td>グローバル CDN</td>
     </tr>
   </table>
+
+  <!-- Firestore データ構造 -->
+  <h2>2.5 Firestore データ構造</h2>
+  <table>
+    <tr><th>コレクション</th><th>フィールド</th><th>型</th><th>説明</th></tr>
+    <tr><td rowspan="4"><code>scores</code></td><td><code>score</code></td><td>int</td><td>最終スコア</td></tr>
+    <tr><td><code>lines</code></td><td>int</td><td>消去ライン数</td></tr>
+    <tr><td><code>level</code></td><td>int</td><td>到達レベル</td></tr>
+    <tr><td><code>ts</code></td><td>timestamp</td><td>ゲームオーバー日時（サーバー時刻）</td></tr>
+  </table>
+  <p>セキュリティルール：全員読み取り可 / 書き込みはフィールド型・範囲チェック付きで認証不要</p>
 
   <!-- 3. アプリケーションアーキテクチャ -->
   <h2>3. アプリケーションアーキテクチャ</h2>
